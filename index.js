@@ -19,7 +19,7 @@ app.use((request,response,next)=>{
 //托管web页面 调用即可同源
 app.use(express.static('web'))
 //托管图片文件夹
-app.use(express.static('uplouds'))
+app.use(express.static('uploads'))
 // 调用中间件-------------------------------------------------------
 app.use(bodyp.urlencoded({
     extended: false
