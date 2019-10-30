@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bootstrap 101 Template</title>
+
+  <!-- Bootstrap -->
+  <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- 自己的css -->
+  <link rel="stylesheet" href="./css/base.css">
+  <style>
+  .imageslable{
+    display:block;
+    margin-top: 20px;
+    height: 50px;
+    width: 200px;
+    text-align: center !important;
+    border-radius: 25px;
+    border: 2px solid skyblue;
+    color: skyblue;
+    
+  }
+  .imageslable img {
+    height: 100%;
+  }
+  
+  </style>
+
+  <!--
+      HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries
+    -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+  <div class="wrap">
+    <nav class="navbar  navbar-inverse navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#mymenu">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="./index.html"><img src="images/logo.png"></a>
+        </div>
+        <!-- Indicates a dangerous or potentially negative action -->
+        <button type="button" class="btn btn-danger pull-right btn-logout">退出</button>
+        <h4 class='pull-right title'>管理员</h4>
+      </div>
+
+    </nav>
+
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+              <div class="row">
+                <div class="col-md-6 page-title">英雄信息修改</div>
+                <div class="col-md-6 text-right">当前位置：首页 &gt; 英雄信息修改</div>
+              </div>
+            </div>
+            <div class="panel-body">
+              <form id='formEdit' action="#" method="" class="form-horizontal">
+                <!-- 隐藏一个input -->
+                <input type="hidden" id="heroId" name="id" />
+                <div class="form-group">
+                  <label for="heroName" class="col-sm-2 control-label">姓名</label>
+                  <div class="col-sm-10">
+                    <input required type="text" class="form-control" id="heroName" name="name" value="请输入姓名" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="skillName" class="col-sm-2 control-label">技能</label>
+                  <div class="col-sm-10">
+                    <input required type="text" class="form-control" id="skillName" name="skill" value="请输入技能" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="heroIcon" class="col-sm-2 control-label">头像</label>
+                  <div class="col-sm-10">
+                    <img src="./images/dogs.gif" class='preview ' alt="">
+                    <input required type="file" class="file-input" id="heroIcon" name="icon" style="display: none;"  />
+                    <label for="heroIcon" class="col-sm-2 control-label  imageslable">
+                      上传图片<img src="./images/上传图片.png" alt="">
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-sm-offset-2 col-sm-10">
+                    <button type="button" class="btn btn-primary btn-save">
+                      保存
+                    </button>
+                    <button type="button" class="btn btn-cancel">取消</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="./lib/bootstrap/js/jquery-1.12.4.js"></script>
+
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
+
+  <script>
+    $(function () {
+      //图片预览----------------------------------
+      $('#heroIcon').change(function (e) {
+        //生成地址
+        console.log(this.files[0]);
+        
+        const url = URL.createObjectURL(this.files[0])
+        //图片src变一下
+        $(this).siblings().prop('src', url)
+      })
+      //获取id进行渲染--------------------------------
+      const id = location.search.slice(4)
+      // 根据id发送ajax
+      $.ajax({
+        url: '/hero/info',
+        data: {
+          id
+        },
+        success: function (res) {
+          console.log(res);
+          //渲染页面
+          const {
+            id,
+            name,
+            skill,
+            icon
+          } = res.data
+          $('#heroId').val(id)
+          $('#heroName').val(name)
+          $('#skillName').val(skill)
+          $('.preview').prop('src', icon)
+        }
+      })
+
+      //点击保存按钮修改
+      $('.btn-primary').click(function (e) {
+        // 获取值发送ajax
+        const formdata = new FormData($('form')[0])
+
+        $.ajax({
+          url: '/hero/update',
+          type: 'post',
+          data: formdata,
+          contentType: false,
+          processData: false,
+          success: function (res) {
+            if (res.code == 200) {
+              console.log(res);
+              
+              alert('文件编辑成功')
+              location.href=`index.html`
+            }
+          },
+          error:function(res){
+            if (res.status==500) {
+              alert('请上传图片')
+            }
+            
+          }
+        })
+      })
+
+
+
+    })
+  </script>
+</body>
+
+</html>
